@@ -1,0 +1,6 @@
+server:
+  port: ${APPLICATION_PORT}
+
+spring:
+  application:
+    name: Innowise-Intership-Payment-Service
