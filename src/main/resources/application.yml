@@ -12,5 +12,7 @@ spring:
       username: ${DB_USER}
       password: ${DB_PASSWORD}
       authentication-database: admin
+      auto-index-creation: false
   liquibase:
     change-log: /db/changelog/db.changelog-master.yaml
+    enabled: true

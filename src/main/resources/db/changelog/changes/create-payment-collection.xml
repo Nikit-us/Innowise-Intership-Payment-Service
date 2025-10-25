@@ -17,10 +17,6 @@
                         bsonType: "object",
                         required: ["order_id", "user_id", "status", "timestamp", "payment_amount"],
                         properties: {
-                            id: {
-                                bsonType: "string",
-                                description: "Unique payment identifier"
-                            },
                             order_id: {
                                 bsonType: "string",
                                 description: "Associated order identifier"
@@ -31,7 +27,7 @@
                             },
                             status: {
                                 bsonType: "string",
-                                enum: ["pending", "completed", "failed", "refunded", "cancelled"],
+                                enum: ["PENDING", "SUCCESS", "FAILED", "CANCELLED"],
                                 description: "Payment status"
                             },
                             timestamp: {
@@ -51,16 +47,6 @@
                 }
             </mongodb:options>
         </mongodb:createCollection>
-    </changeSet>
-    <changeSet id="create-index-on-id" author="Nikita">
-        <mongodb:createIndex collectionName="payments">
-            <mongodb:keys>
-                { id: 1 }
-            </mongodb:keys>
-            <mongodb:options>
-                { unique: true, name: "idx_payment_id" }
-            </mongodb:options>
-        </mongodb:createIndex>
     </changeSet>
 
     <changeSet id="create-index-on-order_id" author="Nikita">
