@@ -5,6 +5,7 @@ import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -27,6 +28,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentRepositoryImpl implements PaymentRepository {
     private final MongoTemplate mongoTemplate;
 
@@ -51,23 +53,18 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
-    public Optional<Payment> findByOrderId(Long orderId) {
-        if(orderId == null) {
-            throw new IllegalArgumentException("Order id cannot be null");
-        }
-        return findByKey(ORDER_ID_KEY, orderId).stream().findFirst();
+    public List<Payment> findByOrderId(Long orderId) {
+        return findByKey(ORDER_ID_KEY, orderId);
     }
 
     @Override
     public List<Payment> findByUserId(Long userId) {
-        if(userId == null) {
-            throw new IllegalArgumentException("User id cannot be null");
-        }
         return findByKey(USER_ID_KEY, userId);
     }
 
     @Override
-    public List<Payment> findByStatuses(PaymentStatus... statuses) {
+    public List<Payment> findByStatuses(Set<PaymentStatus> statuses) {
+        log.info("Finding payments by statuses: {}", statuses);
         return findByKey(STATUS_KEY, statuses);
     }
 
@@ -112,10 +109,9 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         return mongoTemplate.find(query, Payment.class);
     }
 
-    @SafeVarargs
-    private <T> List<Payment> findByKey(String key, T... args) {
+    private <T> List<Payment> findByKey(String key, Set<T> args) {
         Criteria criteria = where(key)
-                .in((Object[]) args);
+                .in(args);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Payment.class);
     }
