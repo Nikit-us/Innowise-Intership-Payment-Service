@@ -3,6 +3,7 @@ package com.innowise.service.impl;
 import com.innowise.dto.RequestPaymentDto;
 import com.innowise.dto.ResponsePaymentDto;
 import com.innowise.feing.RandomOrgClient;
+import com.innowise.kafka.KafkaSender;
 import com.innowise.mapper.PaymentMapper;
 import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
@@ -24,6 +25,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final RandomOrgClient  randomOrgClient;
+    private final KafkaSender kafkaSender;
 
     @Override
     public ResponsePaymentDto createPayment(RequestPaymentDto dto) {
@@ -33,7 +35,10 @@ public class PaymentServiceImpl implements PaymentService {
                 getRandomNumber() % 2 == 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED
         );
         log.info("Creating payment with id {}", payment);
-        return paymentMapper.toResponsePaymentDto(paymentRepository.save(payment));
+        ResponsePaymentDto savedPayment = paymentMapper.toResponsePaymentDto(paymentRepository.save(payment));
+
+        kafkaSender.sendPayment(savedPayment, "CREATE_PAYMENT");
+        return savedPayment;
     }
 
     @Override
