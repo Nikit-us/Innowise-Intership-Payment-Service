@@ -16,6 +16,8 @@ spring:
   liquibase:
     change-log: /db/changelog/db.changelog-master.yaml
     enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
 random:
   org:
     url: ${RANDOM_ORG_URL}
