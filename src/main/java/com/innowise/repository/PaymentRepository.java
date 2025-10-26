@@ -5,13 +5,13 @@ import com.innowise.model.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public interface PaymentRepository {
     Payment save(Payment payment);
 
-    Optional<Payment> findByOrderId(Long orderId);
+    List<Payment> findByOrderId(Long orderId);
     List<Payment> findByUserId(Long userId);
-    List<Payment> findByStatuses(PaymentStatus... statuses);
+    List<Payment> findByStatuses(Set<PaymentStatus> statuses);
     double getTotalSumOfDatePeriod(LocalDateTime startDate, LocalDateTime endDate);
 }

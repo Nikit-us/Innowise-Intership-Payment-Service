@@ -16,3 +16,6 @@ spring:
   liquibase:
     change-log: /db/changelog/db.changelog-master.yaml
     enabled: true
+random:
+  org:
+    url: ${RANDOM_ORG_URL}
