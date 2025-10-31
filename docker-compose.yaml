@@ -1,4 +1,21 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: payment-service:latest
+    container_name: payment-service-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
   mongodb:
     image: mongodb/mongodb-community-server:latest
     container_name: payment-service-db
