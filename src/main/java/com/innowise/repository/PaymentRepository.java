@@ -11,7 +11,10 @@ public interface PaymentRepository {
     Payment save(Payment payment);
 
     List<Payment> findByOrderId(Long orderId);
+
     List<Payment> findByUserId(Long userId);
+
     List<Payment> findByStatuses(Set<PaymentStatus> statuses);
+
     double getTotalSumOfDatePeriod(LocalDateTime startDate, LocalDateTime endDate);
 }
