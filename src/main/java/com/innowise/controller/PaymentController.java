@@ -7,6 +7,7 @@ import com.innowise.service.PaymentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -35,5 +37,13 @@ public class PaymentController {
             @RequestParam(required = false) @Positive Long orderId,
             @RequestParam(required = false) Set<PaymentStatus> paymentStatus) {
         return ResponseEntity.ok(paymentService.getPaymentsByParameters(userId, orderId, paymentStatus));
+    }
+
+    @GetMapping("/total-sum")
+    public ResponseEntity<Double> getTotalSum(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
+        return ResponseEntity.ok(paymentService.getTotalSum(startDate, endDate));
     }
 }

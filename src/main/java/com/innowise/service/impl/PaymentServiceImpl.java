@@ -59,6 +59,16 @@ public class PaymentServiceImpl implements PaymentService {
         return payments;
     }
 
+    @Override
+    public Double getTotalSum(LocalDateTime start, LocalDateTime end) {
+        if (start.isAfter(end)) {
+            LocalDateTime temp = start;
+            start = end;
+            end = temp;
+        }
+        return paymentRepository.getTotalSumOfDatePeriod(start, end);
+    }
+
     private int getRandomNumber() {
         String randomNumber = randomOrgClient.getRandomNumber().trim();
         log.info("Random number: {}", randomNumber);

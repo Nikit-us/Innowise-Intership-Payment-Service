@@ -59,12 +59,12 @@ class KafkaListenerServiceIntegrationTest extends AbstractIntegrationTest {
     @ParameterizedTest
     @MethodSource("paymentRequests")
     void WhenMessageArrives_ThenListenerCreatesPayment(RequestPaymentDto dto, String randomNumber, PaymentStatus status) {
-        kafkaTemplate.send("CREATE_ORDER", dto);
-
         stubFor(get(urlEqualTo("/"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody(randomNumber)));
+
+        kafkaTemplate.send("CREATE_ORDER", dto);
 
         await().atMost(Duration.ofSeconds(5))
                 .untilAsserted(() -> {

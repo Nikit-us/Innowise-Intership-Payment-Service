@@ -11,6 +11,7 @@ import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
 import com.innowise.service.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -350,6 +351,50 @@ class PaymentServiceImplTest {
 
         private static Payment createPayment(String id, String orderId, String userId, PaymentStatus status, Double amount) {
             return new Payment(id, orderId, userId, status, LocalDateTime.now(), amount);
+        }
+    }
+
+    @Nested
+    class GetTotalSum {
+        static Stream<Arguments> provideDatePairs() {
+            LocalDateTime date1 = LocalDateTime.of(2025, 1, 1, 0, 0);
+            LocalDateTime date2 = LocalDateTime.of(2025, 1, 10, 0, 0);
+
+            return Stream.of(
+                    Arguments.of(date1, date2, date1, date2),
+                    Arguments.of(date2, date1, date1, date2)
+            );
+        }
+        @ParameterizedTest
+        @MethodSource("provideDatePairs")
+        void WhenDatesProvided_ThenRepositoryCalledWithOrderedDates(LocalDateTime start, LocalDateTime end, LocalDateTime expectedStart, LocalDateTime expectedEnd) {
+            when(paymentRepository.getTotalSumOfDatePeriod(any(), any())).thenReturn(500.0);
+
+            Double result = paymentService.getTotalSum(start, end);
+
+            ArgumentCaptor<LocalDateTime> startCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+            ArgumentCaptor<LocalDateTime> endCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+
+            verify(paymentRepository, times(1))
+                    .getTotalSumOfDatePeriod(startCaptor.capture(), endCaptor.capture());
+
+            assertAll(
+                    () -> assertThat(startCaptor.getValue()).isEqualTo(expectedStart),
+                    () -> assertThat(endCaptor.getValue()).isEqualTo(expectedEnd),
+                    () -> assertThat(result).isEqualTo(500.0)
+            );
+        }
+
+        @Test
+        void WhenRepositoryReturnsZero_ThenReturnZero() {
+            LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2025, 1, 5, 0, 0);
+
+            when(paymentRepository.getTotalSumOfDatePeriod(start, end)).thenReturn(0.0);
+
+            Double result = paymentService.getTotalSum(start, end);
+
+            assertThat(result).isEqualTo(0.0);
         }
     }
 }

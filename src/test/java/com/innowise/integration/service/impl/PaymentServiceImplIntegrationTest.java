@@ -168,4 +168,47 @@ class PaymentServiceImplIntegrationTest extends AbstractIntegrationTest {
             assertThat(result).isEmpty();
         }
     }
+
+    @Nested
+    class GetTotalSum {
+        @BeforeEach
+        void prepareData() {
+            Payment p1 = new Payment(null, "100", "200", PaymentStatus.SUCCESS, LocalDateTime.of(2025, 1, 1, 10, 0), 100.0);
+            Payment p2 = new Payment(null, "101", "200", PaymentStatus.SUCCESS, LocalDateTime.of(2025, 1, 3, 12, 0), 200.0);
+            Payment p3 = new Payment(null, "102", "200", PaymentStatus.SUCCESS, LocalDateTime.of(2025, 1, 5, 15, 0), 300.0);
+            Payment p4 = new Payment(null, "103", "200", PaymentStatus.SUCCESS, LocalDateTime.of(2025, 1, 10, 18, 0), 400.0);
+            List.of(p1, p2, p3, p4).forEach(paymentRepository::save);
+        }
+
+        @Test
+        void WhenValidDateRange_ThenReturnCorrectSum() {
+            LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2025, 1, 6, 0, 0);
+
+            Double totalSum = paymentService.getTotalSum(start, end);
+
+            assertThat(totalSum).isEqualTo(600.0);
+        }
+
+        @Test
+        void WhenDatesSwapped_ThenStillReturnCorrectSum() {
+            LocalDateTime start = LocalDateTime.of(2025, 1, 6, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2025, 1, 1, 0, 0);
+
+            Double totalSum = paymentService.getTotalSum(start, end);
+
+            assertThat(totalSum).isEqualTo(600.0);
+        }
+
+        @Test
+        void WhenNoPaymentsInRange_ThenReturnZero() {
+            LocalDateTime start = LocalDateTime.of(2025, 2, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2025, 2, 10, 0, 0);
+
+            Double totalSum = paymentService.getTotalSum(start, end);
+
+            assertThat(totalSum).isEqualTo(0.0);
+        }
+    }
+
 }
