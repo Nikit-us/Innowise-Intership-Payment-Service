@@ -1,14 +1,15 @@
-package com.innowise.service.impl;
+package com.innowise.unit.service.impl;
 
 import com.innowise.dto.RequestPaymentDto;
 import com.innowise.dto.ResponsePaymentDto;
 import com.innowise.feing.RandomOrgClient;
-import com.innowise.kafka.KafkaSender;
+import com.innowise.kafka.KafkaSenderService;
 import com.innowise.mapper.PaymentMapper;
 import com.innowise.mapper.PaymentMapperImpl;
 import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
+import com.innowise.service.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,7 +52,7 @@ class PaymentServiceImplTest {
     );
 
     @Mock
-    private KafkaSender kafkaSender;
+    private KafkaSenderService kafkaSenderService;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -104,7 +105,7 @@ class PaymentServiceImplTest {
             ArgumentCaptor<ResponsePaymentDto> messageCaptor = ArgumentCaptor.forClass(ResponsePaymentDto.class);
             ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
 
-            verify(kafkaSender, times(1)).sendPayment(messageCaptor.capture(), topicCaptor.capture());
+            verify(kafkaSenderService, times(1)).sendPayment(messageCaptor.capture(), topicCaptor.capture());
 
             assertAll(
                     () -> assertThat(topicCaptor.getValue()).isEqualTo("CREATE_PAYMENT"),

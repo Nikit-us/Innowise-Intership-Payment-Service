@@ -1,9 +1,8 @@
 package com.innowise.integration.kafka;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.innowise.dto.ResponsePaymentDto;
 import com.innowise.integration.AbstractIntegrationTest;
-import com.innowise.kafka.KafkaSender;
+import com.innowise.kafka.KafkaSenderService;
 import com.innowise.model.PaymentStatus;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -30,13 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class KafkaSenderIntegrationTest extends AbstractIntegrationTest {
-
+class KafkaSenderServiceIntegrationTest extends AbstractIntegrationTest {
     @Autowired
-    private KafkaSender kafkaSender;
-
-    @Autowired
-    private KafkaTemplate<String, ResponsePaymentDto> kafkaTemplate;
+    private KafkaSenderService kafkaSenderService;
 
     private Consumer<String, ResponsePaymentDto> consumer;
 
@@ -48,9 +43,9 @@ class KafkaSenderIntegrationTest extends AbstractIntegrationTest {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        consumer = new KafkaConsumer<>(props, new StringDeserializer(),
-                new JsonDeserializer<>(ResponsePaymentDto.class, false));
+        consumer = new KafkaConsumer<>(props, new StringDeserializer(), new JsonDeserializer<>(ResponsePaymentDto.class, false));
         consumer.subscribe(Collections.singleton("CREATE_PAYMENT"));
 
     }
@@ -69,8 +64,8 @@ class KafkaSenderIntegrationTest extends AbstractIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("paymentMessages")
-    void whenSendPayment_thenMessageAppearsInKafka(ResponsePaymentDto dto) {
-        kafkaSender.sendPayment(dto, "CREATE_PAYMENT");
+    void WhenSendPayment_ThenMessageAppearsInKafka(ResponsePaymentDto dto) {
+        kafkaSenderService.sendPayment(dto, "CREATE_PAYMENT");
 
         await().atMost(Duration.ofSeconds(5))
                 .untilAsserted(() -> {
