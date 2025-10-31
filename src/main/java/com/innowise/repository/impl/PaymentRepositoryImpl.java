@@ -1,13 +1,11 @@
 package com.innowise.repository.impl;
 
-import com.innowise.exception.DatabaseOperationException;
 import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -42,14 +40,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        if(payment == null) {
-            throw new IllegalArgumentException("Payment cannot be null");
-        }
-        try {
-            return mongoTemplate.insert(payment);
-        } catch (DataAccessException e) {
-            throw new DatabaseOperationException("Failed to save payment", e);
-        }
+        return mongoTemplate.insert(payment);
     }
 
     @Override

@@ -7,35 +7,22 @@ import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
+@ConditionalOnProperty(name = "spring.liquibase.enabled", havingValue = "true", matchIfMissing = true)
 public class MongoLiquibaseConfig {
-
-    @Value("${spring.data.mongodb.host}")
-    private String host;
-
-    @Value("${spring.data.mongodb.port}")
-    private int port;
-
-    @Value("${spring.data.mongodb.database}")
-    private String database;
-
-    @Value("${spring.data.mongodb.username}")
-    private String username;
-
-    @Value("${spring.data.mongodb.password}")
-    private String password;
+    @Value("${spring.data.mongodb.uri}")
+    String url;
 
     @Value("${spring.liquibase.change-log}")
     private String changeLogMaster;
 
     @Bean
     public Liquibase mongoLiquibase() {
-        String url = String.format("mongodb://%s:%s@%s:%d/%s?authSource=admin",
-                username, password, host, port, database);
         try {
             MongoLiquibaseDatabase mongoDatabase = (MongoLiquibaseDatabase)
                     DatabaseFactory.getInstance().openDatabase(url, null, null, null, null);

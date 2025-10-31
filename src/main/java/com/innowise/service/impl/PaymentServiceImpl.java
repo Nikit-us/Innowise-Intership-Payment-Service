@@ -3,7 +3,7 @@ package com.innowise.service.impl;
 import com.innowise.dto.RequestPaymentDto;
 import com.innowise.dto.ResponsePaymentDto;
 import com.innowise.feing.RandomOrgClient;
-import com.innowise.kafka.KafkaSender;
+import com.innowise.kafka.KafkaSenderService;
 import com.innowise.mapper.PaymentMapper;
 import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,19 +26,20 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final RandomOrgClient  randomOrgClient;
-    private final KafkaSender kafkaSender;
+    private final KafkaSenderService kafkaSenderService;
+    private final Clock clock;
 
     @Override
     public ResponsePaymentDto createPayment(RequestPaymentDto dto) {
         Payment payment = paymentMapper.toPayment(dto);
-        payment.setDate(LocalDateTime.now());
+        payment.setDate(LocalDateTime.now(clock));
         payment.setStatus(
                 getRandomNumber() % 2 == 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED
         );
         log.info("Creating payment with id {}", payment);
         ResponsePaymentDto savedPayment = paymentMapper.toResponsePaymentDto(paymentRepository.save(payment));
 
-        kafkaSender.sendPayment(savedPayment, "CREATE_PAYMENT");
+        kafkaSenderService.sendPayment(savedPayment, "CREATE_PAYMENT");
         return savedPayment;
     }
 
