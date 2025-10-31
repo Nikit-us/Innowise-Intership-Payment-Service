@@ -18,7 +18,7 @@ public abstract class AbstractIntegrationTest {
 
     @Container
     protected static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0")
-            .waitingFor(Wait.forListeningPort());
+                    .waitingFor(Wait.forListeningPort());
 
     @Container
     protected static final KafkaContainer kafkaContainer = new KafkaContainer("apache/kafka-native:3.8.0")

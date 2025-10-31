@@ -102,7 +102,7 @@ class PaymentServiceImplIntegrationTest extends AbstractIntegrationTest {
             Payment p1 = new Payment(null, "100", "200", PaymentStatus.SUCCESS, LocalDateTime.now(), 100.0);
             Payment p2 = new Payment(null, "101", "200", PaymentStatus.FAILED, LocalDateTime.now(), 200.0);
             Payment p3 = new Payment(null, "102", "300", PaymentStatus.SUCCESS, LocalDateTime.now(), 150.0);
-            List.of(p1, p2, p3).forEach(paymentRepository::save);
+            List.of(p1,p2, p3).forEach(paymentRepository::save);
 
             List<ResponsePaymentDto> result = paymentService.getPaymentsByParameters(200L, null, null);
 
@@ -117,7 +117,7 @@ class PaymentServiceImplIntegrationTest extends AbstractIntegrationTest {
             Payment p1 = new Payment(null, "100", "200", PaymentStatus.SUCCESS, LocalDateTime.now(), 100.0);
             Payment p2 = new Payment(null, "100", "201", PaymentStatus.FAILED, LocalDateTime.now(), 200.0);
             Payment p3 = new Payment(null, "101", "300", PaymentStatus.SUCCESS, LocalDateTime.now(), 150.0);
-            List.of(p1, p2, p3).forEach(paymentRepository::save);
+            List.of(p1,p2, p3).forEach(paymentRepository::save);
 
             List<ResponsePaymentDto> result = paymentService.getPaymentsByParameters(null, 100L, null);
 
@@ -133,7 +133,7 @@ class PaymentServiceImplIntegrationTest extends AbstractIntegrationTest {
             Payment p2 = new Payment(null, "101", "201", PaymentStatus.FAILED, LocalDateTime.now(), 200.0);
             Payment p3 = new Payment(null, "102", "300", PaymentStatus.SUCCESS, LocalDateTime.now(), 150.0);
             Payment p4 = new Payment(null, "103", "301", PaymentStatus.PENDING, LocalDateTime.now(), 180.0);
-            List.of(p1, p2, p3, p4).forEach(paymentRepository::save);
+            List.of(p1,p2, p3, p4).forEach(paymentRepository::save);
             Set<PaymentStatus> statuses = Set.of(PaymentStatus.SUCCESS, PaymentStatus.PENDING);
 
             List<ResponsePaymentDto> result = paymentService.getPaymentsByParameters(null, null, statuses);
@@ -152,7 +152,7 @@ class PaymentServiceImplIntegrationTest extends AbstractIntegrationTest {
             Payment p3 = new Payment(null, "101", "300", PaymentStatus.SUCCESS, LocalDateTime.now(), 150.0);
             Payment p4 = new Payment(null, "102", "200", PaymentStatus.PENDING, LocalDateTime.now(), 180.0);
             Payment p5 = new Payment(null, "101", "301", PaymentStatus.FAILED, LocalDateTime.now(), 190.0);
-            List.of(p1, p2, p3, p4, p5).forEach(paymentRepository::save);
+            List.of(p1,p2, p3, p4, p5).forEach(paymentRepository::save);
 
             List<ResponsePaymentDto> result = paymentService.getPaymentsByParameters(
                     200L, null, Set.of(PaymentStatus.SUCCESS)

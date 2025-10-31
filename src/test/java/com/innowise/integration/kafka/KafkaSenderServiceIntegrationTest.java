@@ -2,52 +2,46 @@ package com.innowise.integration.kafka;
 
 import com.innowise.dto.ResponsePaymentDto;
 import com.innowise.integration.AbstractIntegrationTest;
+import com.innowise.integration.config.KafkaTestConsumerConfig;
 import com.innowise.kafka.KafkaSenderService;
 import com.innowise.model.PaymentStatus;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.context.annotation.Import;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Import(KafkaTestConsumerConfig.class)
 class KafkaSenderServiceIntegrationTest extends AbstractIntegrationTest {
+
     @Autowired
     private KafkaSenderService kafkaSenderService;
+
+    @Autowired
+    private ConsumerFactory<String, ResponsePaymentDto> consumerFactory;
 
     private Consumer<String, ResponsePaymentDto> consumer;
 
     @BeforeEach
     void setUp() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
-        consumer = new KafkaConsumer<>(props, new StringDeserializer(), new JsonDeserializer<>(ResponsePaymentDto.class, false));
+        consumer = consumerFactory.createConsumer();
         consumer.subscribe(Collections.singleton("CREATE_PAYMENT"));
-
     }
 
     @AfterEach
