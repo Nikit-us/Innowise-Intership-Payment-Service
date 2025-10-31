@@ -84,9 +84,9 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
         Document result = aggregationResults.getUniqueMappedResult();
 
-        if(result != null && result.containsKey(TOTAL_SUM_KEY)) {
+        if (result != null && result.containsKey(TOTAL_SUM_KEY)) {
             Object totalSum = result.get(TOTAL_SUM_KEY);
-            if(totalSum instanceof Number sum) {
+            if (totalSum instanceof Number sum) {
                 return sum.doubleValue();
             }
         }
