@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: payment-service:latest
+    container_name: payment-service-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: payment-service-db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  kafka:
+    image: apache/kafka:4.1.0
+    container_name: payment-service-kafka
+    ports:
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    name: services-network
+    external: true
+
+volumes:
+  mongo_data:
