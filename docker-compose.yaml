@@ -6,24 +6,34 @@ services:
     image: payment-service:latest
     container_name: payment-service-app
     ports:
-      - "8080:8080"
-    env_file:
-      - .env
+      - "${APPLICATION_PORT}:${APPLICATION_PORT}"
+    environment:
+      - APPLICATION_PORT=${APPLICATION_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - RANDOM_ORG_URL=${RANDOM_ORG_URL}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_PORT=${KAFKA_PORT}
     depends_on:
-      mongodb:
+      mongo:
         condition: service_healthy
+#      kafka:
+#        condition: service_healthy
     networks:
       - app-network
     restart: unless-stopped
 
-  mongodb:
-    image: mongodb/mongodb-community-server:latest
+  mongo:
+    image: mongo:7.0
     container_name: payment-service-db
     restart: unless-stopped
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PUBLIC_PORT}:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
       - MONGO_INITDB_DATABASE=${DB_NAME}
     volumes:
@@ -39,9 +49,26 @@ services:
 
   kafka:
     image: apache/kafka:4.1.0
-    container_name: payment-service-kafka
+    container_name: kafka-broker
     ports:
-      - "${KAFKA_PORT}:${KAFKA_PORT}"
+      - "${KAFKA_PORT}:9092"
+    healthcheck:
+      test: [ "CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-broker:9092
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-broker:9093
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
     networks:
       - app-network
 
