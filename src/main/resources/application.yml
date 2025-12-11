@@ -6,13 +6,23 @@ spring:
     name: Innowise-Intership-Payment-Service
   data:
     mongodb:
-      uri: mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
+      uri: mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
       auto-index-creation: false
   liquibase:
     change-log: /db/changelog/db.changelog-master.yaml
     enabled: true
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
 random:
   org:
     url: ${RANDOM_ORG_URL}
