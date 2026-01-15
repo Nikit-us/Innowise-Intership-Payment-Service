@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Import(KafkaTestConsumerConfig.class)
 class KafkaListenerServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
