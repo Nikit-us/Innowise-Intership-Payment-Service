@@ -14,15 +14,21 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
 management:
-  health:
-    livenessstate:
-      enabled: true
-    readinessstate:
-      enabled: true
-  endpoint:
-    health:
-      probes:
-        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health, prometheus, info"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTLP_ENDPOINT}
+loki:
+  endpoint: ${LOKI_ENDPOINT}
 random:
   org:
     url: ${RANDOM_ORG_URL}

@@ -3,6 +3,7 @@ package com.innowise.integration.kafka;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.innowise.dto.RequestPaymentDto;
 import com.innowise.integration.AbstractIntegrationTest;
+import com.innowise.integration.config.KafkaTestConsumerConfig;
 import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -27,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class KafkaListenerServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired

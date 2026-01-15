@@ -7,15 +7,15 @@ import com.innowise.kafka.KafkaSenderService;
 import com.innowise.model.PaymentStatus;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Import(KafkaTestConsumerConfig.class)
 class KafkaSenderServiceIntegrationTest extends AbstractIntegrationTest {
 
@@ -36,17 +35,18 @@ class KafkaSenderServiceIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private ConsumerFactory<String, ResponsePaymentDto> consumerFactory;
 
-    private Consumer<String, ResponsePaymentDto> consumer;
+    private static Consumer<String, ResponsePaymentDto> consumer;
 
-    @BeforeEach
-    void setUp() {
-        consumer = consumerFactory.createConsumer();
+    @BeforeAll
+    static void setup(@Autowired ConsumerFactory<String, ResponsePaymentDto> cf) {
+        consumer = cf.createConsumer();
         consumer.subscribe(Collections.singleton("CREATE_PAYMENT"));
+        KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(10));
     }
 
-    @AfterEach
-    void tearDown() {
-        consumer.close();
+    @AfterAll
+    static void tearDown() {
+        if (consumer != null) consumer.close();
     }
 
     static Stream<Arguments> paymentMessages() {
