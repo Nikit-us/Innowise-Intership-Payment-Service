@@ -1,3 +1,9 @@
 spring:
   liquibase:
     enabled: false
+log:
+  home:
+management:
+  otlp:
+    tracing:
+      endpoint: http://localhost:4317
