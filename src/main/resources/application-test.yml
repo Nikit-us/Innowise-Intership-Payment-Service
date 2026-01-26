@@ -1,9 +1,8 @@
 spring:
   liquibase:
     enabled: false
-loki:
-  endpoint: http://localhost:3100
-
+log:
+  home:
 management:
   otlp:
     tracing:

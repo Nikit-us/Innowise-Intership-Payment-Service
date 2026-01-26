@@ -27,8 +27,8 @@ management:
   otlp:
     tracing:
       endpoint: ${OTLP_ENDPOINT}
-loki:
-  endpoint: ${LOKI_ENDPOINT}
+log:
+  home: ${LOG_HOME}
 random:
   org:
     url: ${RANDOM_ORG_URL}
