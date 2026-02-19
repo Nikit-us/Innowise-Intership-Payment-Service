@@ -8,6 +8,9 @@ spring:
     mongodb:
       uri: mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
       auto-index-creation: false
+  resourceserver:
+    jwt:
+      issuer-uri: ${KEYCLOAK_URL}/realms/${REALM}
   liquibase:
     change-log: /db/changelog/db.changelog-master.yaml
     enabled: true
